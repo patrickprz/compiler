@@ -7,28 +7,7 @@ tokens = [
     'INT',
     'REAL',
     'ID',
-    'PLUS',
-    'MINUS',
-    'DIVIDE',
-    'MULTIPLY',
-    'EQUALS',
-    'POWER',
-    'LEFT_PAR',
-    'RIGHT_PAR',
-    'SEMICOLON',
-    'WHILE',
-    'IF',
-    'ELSE',
-    'RL_OP',
-    'LEFT_BRACES',
-    'RIGHT_BRACES',
-    'FLOAT',
-    'VAR',
-    'INTVAR',
-    'COMMA',
-    'LEFT_BRACKET',
-    'RIGHT_BRACKET'
-
+    'EQUALS'
 ]
 
 reserved = {
@@ -40,21 +19,7 @@ reserved = {
     'int'   : 'INTVAR',
 }
 
-t_PLUS = r'\+'
-t_MINUS = r'\-'
-t_MULTIPLY = r'\*'
-t_DIVIDE = r'\/'
 t_EQUALS = r'\='
-t_POWER = r'\^'
-t_LEFT_PAR = r'\('
-t_RIGHT_PAR = r'\)'
-t_SEMICOLON = r'\;'
-t_RL_OP = r'==|<>|<=|>=|<|>'
-t_LEFT_BRACES = r'\{'
-t_RIGHT_BRACES = r'\}'
-t_LEFT_BRACKET = r'\['
-t_RIGHT_BRACKET = r'\]'
-t_COMMA = r'\,'
 t_ignore = r' '
 
 def t_FLOAT(t):
@@ -90,7 +55,7 @@ precedence = (
 
 def p_program_p(p):
     '''
-     p_program_p : program
+     program_p : program
                  | program p_program_p
     '''
     print(run(p[1]))
@@ -135,7 +100,6 @@ def p_var_assign(p):
     '''
     var_assign : id_class EQUALS expression SEMICOLON
     '''
-    print (p[3])
     p[0] = ('var',)
 
 def p_expression_var(p):
@@ -152,16 +116,14 @@ def p_expression(p):
                | expression MINUS expression
                | expression POWER expression
     '''
-    print ("T1 = ", p[1], p[2], p[3])
-    p[0] = "T1"
-
+    p[0] = (p[2], p[1], p[3])
 
 def p_expression_int_float(p):
     '''
     expression : INT
                | FLOAT
     '''
-    p[0] = (p[1])
+    p[0] = ('int', )
 
 def p_expression_par(p):
     '''
@@ -221,7 +183,7 @@ def run(p):
     else:
         return p
 
-with open("program2.txt", "r") as f:
+with open("program.txt", "r") as f:
     s = f.read().replace('\n',' ')
     parser.parse(s)
 
