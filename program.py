@@ -1,6 +1,6 @@
 import ply.lex as lex
 import ply.yacc as yacc
-import sys
+from hell import *
 
 tokens = [
 
@@ -74,7 +74,6 @@ def t_ID(t):
         t.type = reserved[ t.value ]
     return t
 
-
 def t_error(t):
     print("Illegal characters!")
     t.lexer.skip(1)
@@ -82,11 +81,9 @@ def t_error(t):
 lexer = lex.lex()
 
 precedence = (
-
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MULTIPLY', 'DIVIDE'),
     ('left', 'POWER')
-
 )
 
 def p_program_p(p):
@@ -100,7 +97,8 @@ def p_program_p(p):
 def p_program(p):
     '''
     program : expression
-            | expression_ctrl
+
+            | cmd_rl
             | var_assign
             | VAR var_type var_declaration SEMICOLON
     '''
@@ -137,7 +135,8 @@ def p_var_assign(p):
     '''
     var_assign : id_class EQUALS expression SEMICOLON
     '''
-    print (p[3])
+    #print (p[3]) --delete
+    p[0] = p[3]
 
 def p_expression_var(p):
     '''
@@ -168,8 +167,8 @@ def p_expression(p):
     if(str(p[1]) == "T1" and str(p[3]) == "T1"):
         teste = ("T2 = ", "T2", p[2], p[1])
 
-    print (teste)
-    p[0] = temp
+    #print (teste) --delete
+    p[0] = teste
 
 
 
@@ -190,22 +189,22 @@ def p_expression_par(p):
 def p_expression_co(p):
     '''
     expression_co : var_assign
-                  | expression_ctrl
+                  | cmd_rl
     '''
-    p[0] = ('expression_co',)
+    p[0] = ('expression_co', p[1])
 
 def p_expression_c(p):
     '''
     expression_c : expression_co
                  | expression_co expression_c
     '''
-    p[0] = ('expression_c',)
+    p[0] = ('expression_c', p[1])
 
 def p_expression_bra(p):
     '''
     expression_bra : LEFT_BRACES expression_c RIGHT_BRACES
     '''
-    p[0] = ('expression_bra',)
+    p[0] = ('expression_bra', p[2])
 
 def p_expression_rl(p):
     '''
@@ -213,13 +212,47 @@ def p_expression_rl(p):
     '''
     p[0] = ('expression_rl', p[1], p[2], p[3])
 
+def p_cmd_if(p):
+    '''
+    cmd_if : IF LEFT_PAR expression_rl RIGHT_PAR expression_bra
+    '''
+
+    END = 'END'
+
+    #S.cod: = E.cod ||
+
+    e_local = str(p[3][1]) + ' '
+    op = invert_op(p[3][2])+ ' '
+    value = str(p[3][3]) + ' '
+    s1_cod = p[5][1]
+
+    gera(C3E.IF, e_local, op, value, C3E.GOTO, END)
+    gera(s1_cod)
+    gera(END, ':')
+
+    #print(p[3][2])
+
+    p[0] = ('cmd_if', 'tudo')
+
+def p_cmd_ifelse(p):
+    '''
+    cmd_ifelse : IF LEFT_PAR expression_rl RIGHT_PAR expression_bra ELSE expression_bra
+    '''
+    p[0] = ('cmd_ifelse', p[1])
+
+def p_cmd_while(p):
+    '''
+    cmd_while : WHILE LEFT_PAR expression_rl RIGHT_PAR expression_bra
+    '''
+    p[0] = ('cmd_while', p[1])
+
 def p_cmd_rl(p):
     '''
-    expression_ctrl : WHILE LEFT_PAR expression_rl RIGHT_PAR expression_bra
-                    | IF LEFT_PAR expression_rl RIGHT_PAR expression_bra
-                    | IF LEFT_PAR expression_rl RIGHT_PAR expression_bra ELSE expression_bra
+    cmd_rl : cmd_while
+                    | cmd_if
+                    | cmd_ifelse
     '''
-    p[0] = ('expression_ctrl',p[1],p[2],p[3])
+    p[0] = ('cmd_rl', p[1])
 
 def p_error(p):
     print("Syntax error found!")
@@ -240,7 +273,7 @@ def run(p):
     else:
         return p
     '''
-with open("program2.txt", "r") as f:
+with open("samples/if.txt", "r") as f:
     s = f.read().replace('\n',' ')
     parser.parse(s)
 
@@ -253,3 +286,4 @@ while True:
     parser.parse(s)
 
 '''
+
