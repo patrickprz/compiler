@@ -169,7 +169,7 @@ def p_expression(p):
 #        temp = last_temp()
 #        reset_temp()
 #    else:
-    temp = cria_temp()
+    temp = create_temp()
     expression = (temp + " = ", p[1], p[2], p[3])
 
     #  print(expression)
@@ -227,7 +227,7 @@ def p_cmd_if(p):
     cmd_if : IF LEFT_PAR expression_rl RIGHT_PAR expression_bra
     '''
 
-    label_end = cria_label('ENDIF')
+    label_end = create_label('ENDIF')
 
     # S.cod: = E.cod ||
 
@@ -236,9 +236,9 @@ def p_cmd_if(p):
     value = str(p[3][3]) + ' '
     s1_cod = p[5]
 
-    gera(C3E.IF, e_local, op, value, C3E.GOTO, label_end)
-    gera(s1_cod)
-    gera(label_end, ':')
+    generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_end)
+    generate_c3e(s1_cod)
+    generate_c3e(label_end, ':')
 
     # print(p[3][2])
 

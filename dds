@@ -1,0 +1,107 @@
+S' $\rightarrow$ p\_program\_p
+
+p\_program\_p $\rightarrow$ program
+
+p\_program\_p $\rightarrow$ program p\_program\_p
+
+program $\rightarrow$ expression
+
+program $\rightarrow$ cmd\_rl
+
+program $\rightarrow$ var\_assign
+
+program $\rightarrow$ VAR var\_type var\_declaration SEMICOLON
+
+var\_declaration $\rightarrow$ var\_type\_id
+
+var\_declaration $\rightarrow$ var\_declaration SEMICOLON var\_type var\_type\_id
+
+var\_type\_id $\rightarrow$ id\_class
+
+var\_type\_id $\rightarrow$ var\_type\_id COMMA id\_class
+
+var\_type $\rightarrow$ REAL
+
+var\_type $\rightarrow$ INTVAR
+
+id\_class $\rightarrow$ ID
+
+id\_class $\rightarrow$ ID LEFT\_BRACKET INT RIGHT\_BRACKET
+
+id\_class $\rightarrow$ ID LEFT\_BRACKET ID RIGHT\_BRACKET
+
+var\_assign $\rightarrow$ id\_class EQUALS expression SEMICOLON
+
+expression $\rightarrow$ id\_class
+
+expression $\rightarrow$ expression MULTIPLY expression
+\{
+  temp = create\_temp()
+  print(temp + " = ", p[1], p[2], p[3])
+\}
+
+expression $\rightarrow$ expression DIVIDE expression
+\{
+  temp = create\_temp()
+  print(temp + " = ", p[1], p[2], p[3])
+\}
+
+expression $\rightarrow$ expression PLUS expression
+\{
+  temp = create\_temp()
+  print(temp + " = ", p[1], p[2], p[3])
+\}
+
+expression $\rightarrow$ expression MINUS expression
+\{
+  temp = create\_temp()
+  print(temp + " = ", p[1], p[2], p[3])
+\}
+
+expression $\rightarrow$ expression POWER expression
+\{
+  temp = create\_temp()
+  print(temp + " = ", p[1], p[2], p[3])
+\}
+
+expression $\rightarrow$ INT
+
+expression $\rightarrow$ FLOAT
+
+expression $\rightarrow$ LEFT\_PAR expression RIGHT\_PAR
+
+expression\_co $\rightarrow$ var\_assign
+
+expression\_co $\rightarrow$ cmd\_rl
+
+expression\_c $\rightarrow$ expression\_co
+
+expression\_c $\rightarrow$ expression\_co expression\_c
+
+expression\_bra $\rightarrow$ LEFT\_BRACES expression\_c RIGHT\_BRACES
+
+expression\_rl $\rightarrow$ expression RL\_OP expression
+
+cmd\_if $\rightarrow$ IF LEFT\_PAR expression\_rl RIGHT\_PAR expression\_bra
+\{
+  
+  label\_end = create\_label('ENDIF')
+
+  generate\_c3e(C3E.IF, e\_local, op, value, C3E.GOTO, label\_end)
+
+  generate\_c3e(s1\_cod)
+
+  generate\_c3e(label\_end, ':')
+
+\}
+
+
+cmd\_ifelse $\rightarrow$ IF LEFT\_PAR expression\_rl RIGHT\_PAR expression\_bra ELSE expression\_bra
+
+cmd\_while $\rightarrow$ WHILE LEFT\_PAR expression\_rl RIGHT\_PAR expression\_bra
+
+cmd\_rl $\rightarrow$ cmd\_while
+
+cmd\_rl $\rightarrow$ cmd\_if
+
+cmd\_rl $\rightarrow$ cmd\_ifelse

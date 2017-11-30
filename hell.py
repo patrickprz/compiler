@@ -1,5 +1,5 @@
 labels = []
-temporaria = []
+temps = []
 
 '''
 def last_temp():
@@ -11,18 +11,18 @@ def reset_temp():
     del temporaria[:]
 '''
 
-def cria_temp(reset=False):
+def create_temp(reset=False):
     count = 0
     if not reset:
-        count = len(temporaria)
+        count = len(temps)
 
     # if count < 2:
-        temporaria.append("T" + str(count + 1))
+        temps.append("T" + str(count + 1))
 
-    return temporaria[-1]
+    return temps[-1]
 
 
-def cria_label(lbl):
+def create_label(lbl):
     count = len(labels) + 1
     label = 'LABEL' + str(count)
 
@@ -33,7 +33,7 @@ def cria_label(lbl):
     return label
 
 
-def gera(*args):
+def generate_c3e(*args):
     line = ''
     for arg in args:
         line += str(arg)
