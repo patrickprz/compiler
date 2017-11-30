@@ -164,23 +164,16 @@ def p_expression(p):
                | expression POWER expression
     '''
 
-    # REVIEW T2
+# TODO: otimizar
+#    if last_temp() == 'T2' and ('T2' == p[1] or 'T2' == p[3]):
+#        temp = last_temp()
+#        reset_temp()
+#    else:
+    temp = cria_temp()
+    expression = (temp + " = ", p[1], p[2], p[3])
 
-    temp = ""
-    teste = ""
-    if str(p[1]) == "T1" or str(p[3]) == "T1":
-        temp = "T2"
-        teste = ("T2 = ", p[3], p[2], p[1])
-    else:
-        temp = "T1"
-        teste = ("T1 = ", p[3], p[2], p[1])
-
-    if str(p[1]) == "T1" and str(p[3]) == "T1":
-        teste = ("T2 = ", "T2", p[2], p[1])
-
-
-    # print (teste)
-    p[0] = temp
+    #  print(expression)
+    p[0] = expression
 
 
 def p_expression_int_float(p):
