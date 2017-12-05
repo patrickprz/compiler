@@ -227,7 +227,7 @@ def p_cmd_if(p):
     cmd_if : IF LEFT_PAR expression_rl RIGHT_PAR expression_bra
     '''
 
-    label_end = create_label('ENDIF')
+    label_end = create_label('END')
 
     # S.cod: = E.cod ||
 
@@ -249,9 +249,8 @@ def p_cmd_ifelse(p):
     '''
     cmd_ifelse : IF LEFT_PAR expression_rl RIGHT_PAR expression_bra ELSE expression_bra
     '''
-    label_end = create_label('ENDELSE')
+    label_end = create_label('END')
     label_else = create_label('ELSE')
-    # S.cod: = E.cod ||
 
     e_local = str(p[3][1]) + ' '
     op = invert_op(p[3][2]) + ' '
@@ -261,11 +260,10 @@ def p_cmd_ifelse(p):
 
     generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_else)
     generate_c3e(s1_cod)
-    generate_c3e(label_end)
-    generate_c3e(label_else)
+    generate_c3e(C3E.GOTO, label_end)
+    generate_c3e(label_else, ":")
     generate_c3e(s2_cod)
     generate_c3e(label_end, ':')
-
 
     p[0] = ('cmd_ifelse', p[1])
 
@@ -292,7 +290,7 @@ def p_error(p):
 
 parser = yacc.yacc()
 
-with open("samples/if.txt", "r") as f:
+with open("samples/if_else.txt", "r") as f:
     s = f.read().replace('\n', ' ')
     parser.parse(s)
 
