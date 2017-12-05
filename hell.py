@@ -59,3 +59,4 @@ def invert_op(op):
 class C3E:
     GOTO = 'GOTO '
     IF = 'IF '
+    ELSE = 'ELSE'
