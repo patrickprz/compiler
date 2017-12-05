@@ -161,7 +161,7 @@ def p_expression_var(p):
     '''
     expression : id_class
     '''
-    
+
 
 def p_expression(p):
     '''
@@ -172,11 +172,11 @@ def p_expression(p):
                | expression POWER expression
     '''
 
-# TODO: otimizar
-#    if last_temp() == 'T2' and ('T2' == p[1] or 'T2' == p[3]):
-#        temp = last_temp()
-#        reset_temp()
-#    else:
+    # TODO: otimizar
+    #    if last_temp() == 'T2' and ('T2' == p[1] or 'T2' == p[3]):
+    #        temp = last_temp()
+    #        reset_temp()
+    #    else:
     temp = create_temp()
     expression = (temp + " = ", p[1], p[2], p[3])
 
@@ -280,6 +280,19 @@ def p_cmd_while(p):
     '''
     cmd_while : WHILE LEFT_PAR expression_rl RIGHT_PAR expression_bra
     '''
+
+    e_cod = p[3]
+    s1_cod = p[5]
+
+    s_begin = create_label('WHILE')
+    e_false = create_label('END')
+
+    generate_c3e(s_begin, ':')
+    generate_c3e(e_cod, ' ', C3E.GOTO, e_false)
+    generate_c3e(s1_cod)
+    generate_c3e(C3E.GOTO, s_begin)
+    generate_c3e(e_false, ':')
+
     p[0] = ('cmd_while', p[1])
 
 
