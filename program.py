@@ -133,27 +133,35 @@ def p_var_type(p):
     '''
     p[0] = p[1]
 
+def p_id_array(p):
+    '''
+    id_array : ID LEFT_BRACKET INT RIGHT_BRACKET
+             | ID LEFT_BRACKET ID RIGHT_BRACKET
+    '''
+
+    temp = create_temp()
+    value = (temp + " = ", p[3], " * ", "4")
+    p[0] = (p[1], p[2], value, p[4])
+
 
 def p_id_class(p):
     '''
     id_class : ID
-             | ID LEFT_BRACKET INT RIGHT_BRACKET
-             | ID LEFT_BRACKET ID RIGHT_BRACKET
+             | id_array
     '''
-
+    p[0] = p[1]
 
 def p_var_assign(p):
     '''
     var_assign : id_class EQUALS expression SEMICOLON
     '''
-    p[0] = p[3]
-
+    p[0] = (p[1], p[2], p[3], p[4])
 
 def p_expression_var(p):
     '''
     expression : id_class
     '''
-
+    
 
 def p_expression(p):
     '''
@@ -290,7 +298,7 @@ def p_error(p):
 
 parser = yacc.yacc()
 
-with open("samples/if_else.txt", "r") as f:
+with open("samples/atrib.txt", "r") as f:
     s = f.read().replace('\n', ' ')
     parser.parse(s)
 
