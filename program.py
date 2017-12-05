@@ -110,20 +110,32 @@ def p_program(p):
     '''
     p[0] = p[1]
 
+def p_var_declaration_repeat(p):
+    '''
+    var_declaration_repeat : var_declaration SEMICOLON var_type var_type_id
+    '''
+    p[0] = (p[1],p[2],p[3],p[4])
+
 
 def p_var_declaration(p):
     '''
     var_declaration : var_type_id
-                    | var_declaration SEMICOLON var_type var_type_id
+                    | var_declaration_repeat
     '''
+    p[0] = p[1]
 
+def p_var_rec(p):
+    '''
+    var_rec : var_type_id COMMA id_class
+    '''
+    p[0] = p[1]
 
 def p_var_type_id(p):
     '''
     var_type_id : id_class
-                | var_type_id COMMA id_class
+                | var_rec
     '''
-
+    p[0] = p[1]
 
 def p_var_type(p):
     '''
@@ -160,6 +172,7 @@ def p_expression_var(p):
     '''
     expression : id_class
     '''
+    p[0] = p[1]
 
 
 def p_expression(p):
@@ -181,14 +194,13 @@ def p_expression(p):
 
     #  print(expression)
     p[0] = expression
-
+    print (p[0])
 
 def p_expression_int_float(p):
     '''
     expression : INT
                | FLOAT
     '''
-
     p[0] = (p[1])
 
 
@@ -206,11 +218,17 @@ def p_expression_co(p):
     '''
     p[0] = p[1]
 
+def p_expression_cr(p):
+    '''
+    expression_cr : expression_co expression_c
+    '''
+    p[0] = (p[1],p[2])
+
 
 def p_expression_c(p):
     '''
     expression_c : expression_co
-                 | expression_co expression_c
+                 | expression_cr
     '''
     p[0] = p[1]
 
