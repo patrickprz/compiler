@@ -98,8 +98,7 @@ def p_program_p(p):
     '''
     p[0] = p[1]
     # SEE LATER
-    # print(run(p[0]))
-
+    print(p[0])
 
 def p_program(p):
     '''
@@ -244,13 +243,13 @@ def p_cmd_if(p):
     value = str(p[3][3]) + ' '
     s1_cod = p[5]
 
-    generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_end)
-    generate_c3e(s1_cod)
-    generate_c3e(label_end, ':')
+    code = generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_end)
+    code += generate_c3e(s1_cod)
+    code += generate_c3e(label_end, ':')
 
     # print(p[3][2])
 
-    p[0] = 'something_if'
+    p[0] = code
 
 
 def p_cmd_ifelse(p):
@@ -266,14 +265,14 @@ def p_cmd_ifelse(p):
     s1_cod = p[5]
     s2_cod = p[7]
 
-    generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_else)
-    generate_c3e(s1_cod)
-    generate_c3e(C3E.GOTO, label_end)
-    generate_c3e(label_else, ":")
-    generate_c3e(s2_cod)
-    generate_c3e(label_end, ':')
+    code = generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_else)
+    code += generate_c3e(s1_cod)
+    code += generate_c3e(C3E.GOTO, label_end)
+    code += generate_c3e(label_else, ":")
+    code += generate_c3e(s2_cod)
+    code += generate_c3e(label_end, ':')
 
-    p[0] = ('cmd_ifelse', p[1])
+    p[0] = code # ('cmd_ifelse', p[1])
 
 
 def p_cmd_while(p):
@@ -287,13 +286,14 @@ def p_cmd_while(p):
     s_begin = create_label('WHILE')
     e_false = create_label('END')
 
-    generate_c3e(s_begin, ':')
-    generate_c3e(e_cod, ' ', C3E.GOTO, e_false)
-    generate_c3e(s1_cod)
-    generate_c3e(C3E.GOTO, s_begin)
-    generate_c3e(e_false, ':')
+    code = generate_c3e(s_begin, ':')
+    code += generate_c3e(e_cod, ' ', C3E.GOTO, e_false)
+    code += generate_c3e(s1_cod)
+    code += generate_c3e(C3E.GOTO, s_begin)
+    code += generate_c3e(e_false, ':')
 
-    p[0] = ('cmd_while', p[1])
+    p[0] = code
+    # ('cmd_while', p[1])
 
 
 def p_cmd_rl(p):
@@ -311,16 +311,6 @@ def p_error(p):
 
 parser = yacc.yacc()
 
-with open("samples/atrib.txt", "r") as f:
+with open("samples/code.txt", "r") as f:
     s = f.read().replace('\n', ' ')
     parser.parse(s)
-
-'''
-while True:
-    try:
-        s = input('>> ')
-    except EOFError:
-        break
-    parser.parse(s)
-
-'''

@@ -38,7 +38,8 @@ def generate_c3e(*args):
     for arg in args:
         line += str(arg)
 
-    print(line)
+    return line
+    # print(line)
 
 
 def invert_op(op):
