@@ -283,7 +283,8 @@ def p_cmd_ifelse(p):
     s1_cod = p[5]
     s2_cod = p[7]
 
-    code = generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_else)
+    #TODO: ver conteúdo do p[0]
+    code = p[0] + generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_else)
     code += generate_c3e(s1_cod)
     code += generate_c3e(C3E.GOTO, label_end)
     code += generate_c3e(label_else, ":")
