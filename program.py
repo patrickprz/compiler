@@ -57,6 +57,8 @@ t_RIGHT_BRACKET = r'\]'
 t_COMMA = r'\,'
 t_ignore = r' '
 
+stack = []
+
 
 def t_FLOAT(t):
     r'\d+\.\d+'
@@ -98,7 +100,9 @@ def p_program_p(p):
     '''
     p[0] = p[1]
     # SEE LATER
-    print(p[0])
+    for i in stack:
+       print(i)
+    # print(stack)
 
 def p_program(p):
     '''
@@ -110,11 +114,12 @@ def p_program(p):
     '''
     p[0] = p[1]
 
+
 def p_var_declaration_repeat(p):
     '''
     var_declaration_repeat : var_declaration SEMICOLON var_type var_type_id
     '''
-    p[0] = (p[1],p[2],p[3],p[4])
+    p[0] = (p[1], p[2], p[3], p[4])
 
 
 def p_var_declaration(p):
@@ -124,11 +129,13 @@ def p_var_declaration(p):
     '''
     p[0] = p[1]
 
+
 def p_var_rec(p):
     '''
     var_rec : var_type_id COMMA id_class
     '''
     p[0] = p[1]
+
 
 def p_var_type_id(p):
     '''
@@ -137,12 +144,14 @@ def p_var_type_id(p):
     '''
     p[0] = p[1]
 
+
 def p_var_type(p):
     '''
     var_type : REAL
              | INTVAR
     '''
     p[0] = p[1]
+
 
 def p_id_array(p):
     '''
@@ -162,11 +171,17 @@ def p_id_class(p):
     '''
     p[0] = p[1]
 
+
 def p_var_assign(p):
     '''
     var_assign : id_class EQUALS expression SEMICOLON
     '''
-    p[0] = (p[1], p[2], p[3], p[4])
+    expression = generate_c3e(p[1], p[2], p[3])
+
+    stack.append(expression)
+
+    p[0] = expression # "#(p[1], p[2], p[3])
+
 
 def p_expression_var(p):
     '''
@@ -193,8 +208,15 @@ def p_expression(p):
     expression = (temp + " = ", p[1], p[2], p[3])
 
     #  print(expression)
-    p[0] = expression
-    print (p[0])
+    if type(p[1]) is tuple and str(p[1][0]).startswith("T") and type(p[3]) and str(p[3][0]).startswith("T"):
+        expression = generate_c3e(temp, " = ", p[1][0], p[2], p[3][0])
+    else:
+        expression = generate_c3e(temp, " = ", p[1], p[2], p[3])
+    # print(expression)
+
+    stack.append(expression)
+    p[0] = temp # expression # (temp, "=", p[1], p[2], p[3])
+
 
 def p_expression_int_float(p):
     '''
@@ -218,11 +240,12 @@ def p_expression_co(p):
     '''
     p[0] = p[1]
 
+
 def p_expression_cr(p):
     '''
     expression_cr : expression_co expression_c
     '''
-    p[0] = (p[1],p[2])
+    p[0] = (p[1], p[2])
 
 
 def p_expression_c(p):
@@ -261,13 +284,13 @@ def p_cmd_if(p):
     value = str(p[3][3]) + ' '
     s1_cod = p[5]
 
-    code = generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_end)
-    code += generate_c3e(s1_cod)
-    code += generate_c3e(label_end, ':')
+    code1 = generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_end)
+    code2 = generate_c3e(s1_cod)
+    code3 = generate_c3e(label_end, ':')
 
     # print(p[3][2])
 
-    p[0] = code
+    p[0] = (code1, code2, code3)
 
 
 def p_cmd_ifelse(p):
@@ -283,15 +306,22 @@ def p_cmd_ifelse(p):
     s1_cod = p[5]
     s2_cod = p[7]
 
-    #TODO: ver conteúdo do p[0]
-    code = p[0] + generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_else)
-    code += generate_c3e(s1_cod)
-    code += generate_c3e(C3E.GOTO, label_end)
-    code += generate_c3e(label_else, ":")
-    code += generate_c3e(s2_cod)
-    code += generate_c3e(label_end, ':')
+    # TODO: ver conteúdo do p[0]
+    c1 = generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_else)
+    c2 = generate_c3e(s1_cod)
+    c3 = generate_c3e(C3E.GOTO, label_end)
+    c4 = generate_c3e(label_else, ":")
+    c5 = generate_c3e(s2_cod)
+    c6 = generate_c3e(label_end, ':')
 
-    p[0] = code # ('cmd_ifelse', p[1])
+    stack.append(c1)
+    stack.append(c2)
+    stack.append(c3)
+    stack.append(c4)
+    stack.append(c5)
+    stack.append(c6)
+
+    p[0] = (c1, c2, c3, c4, c5, c6)
 
 
 def p_cmd_while(p):
@@ -321,7 +351,7 @@ def p_cmd_rl(p):
                     | cmd_if
                     | cmd_ifelse
     '''
-    p[0] = ('cmd_rl', p[1])
+    p[0] = p[1]
 
 
 def p_error(p):
@@ -330,6 +360,6 @@ def p_error(p):
 
 parser = yacc.yacc()
 
-with open("samples/code.txt", "r") as f:
+with open("samples/if.txt", "r") as f:
     s = f.read().replace('\n', ' ')
     parser.parse(s)
