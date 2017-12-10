@@ -1,6 +1,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 from hell import *
+stack_expression = []
 
 tokens = [
 
@@ -176,10 +177,17 @@ def p_var_assign(p):
     '''
     var_assign : id_class EQUALS expression SEMICOLON
     '''
+    # stack_expression = []
     expression = generate_c3e(p[1], p[2], p[3])
 
-    stack.append(expression)
+    # stack.append(expression)
+    s = ""
+    for i in stack_expression:
+        s += str(i)
 
+    stack_expression.clear()
+
+    expression= s + expression
     p[0] = expression # "#(p[1], p[2], p[3])
 
 
@@ -214,7 +222,7 @@ def p_expression(p):
         expression = generate_c3e(temp, " = ", p[1], p[2], p[3])
     # print(expression)
 
-    stack.append(expression)
+        stack_expression.append(expression)
     p[0] = temp # expression # (temp, "=", p[1], p[2], p[3])
 
 
