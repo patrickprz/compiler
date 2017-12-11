@@ -1,6 +1,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 from hell import *
+
 stack_expression = []
 
 tokens = [
@@ -58,8 +59,6 @@ t_RIGHT_BRACKET = r'\]'
 t_COMMA = r'\,'
 t_ignore = r' '
 
-stack = []
-
 
 def t_FLOAT(t):
     r'\d+\.\d+'
@@ -101,9 +100,17 @@ def p_program_p(p):
     '''
     p[0] = p[1]
     # SEE LATER
-    for i in stack:
-       print(i)
+    print_c3e(p[0])
     # print(stack)
+
+
+def print_c3e(code):
+    for chunk in code:
+        if isinstance(chunk, (list, tuple)):
+            print_c3e(chunk)
+        else:
+            print(chunk)
+
 
 def p_program(p):
     '''
@@ -177,18 +184,16 @@ def p_var_assign(p):
     '''
     var_assign : id_class EQUALS expression SEMICOLON
     '''
-    # stack_expression = []
     expression = generate_c3e(p[1], p[2], p[3])
 
-    # stack.append(expression)
-    s = ""
+    stack = []
     for i in stack_expression:
-        s += str(i)
+        stack.append(str(i))
 
     stack_expression.clear()
 
-    expression= s + expression
-    p[0] = expression # "#(p[1], p[2], p[3])
+    stack.append(expression)
+    p[0] = stack  # "#(p[1], p[2], p[3])
 
 
 def p_expression_var(p):
@@ -220,10 +225,10 @@ def p_expression(p):
         expression = generate_c3e(temp, " = ", p[1][0], p[2], p[3][0])
     else:
         expression = generate_c3e(temp, " = ", p[1], p[2], p[3])
-    # print(expression)
+        # print(expression)
 
         stack_expression.append(expression)
-    p[0] = temp # expression # (temp, "=", p[1], p[2], p[3])
+    p[0] = temp  # expression # (temp, "=", p[1], p[2], p[3])
 
 
 def p_expression_int_float(p):
@@ -293,7 +298,7 @@ def p_cmd_if(p):
     s1_cod = p[5]
 
     code1 = generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_end)
-    code2 = generate_c3e(s1_cod)
+    code2 = s1_cod
     code3 = generate_c3e(label_end, ':')
 
     # print(p[3][2])
@@ -316,18 +321,11 @@ def p_cmd_ifelse(p):
 
     # TODO: ver conteúdo do p[0]
     c1 = generate_c3e(C3E.IF, e_local, op, value, C3E.GOTO, label_else)
-    c2 = generate_c3e(s1_cod)
+    c2 = s1_cod
     c3 = generate_c3e(C3E.GOTO, label_end)
     c4 = generate_c3e(label_else, ":")
-    c5 = generate_c3e(s2_cod)
+    c5 = s2_cod
     c6 = generate_c3e(label_end, ':')
-
-    stack.append(c1)
-    stack.append(c2)
-    stack.append(c3)
-    stack.append(c4)
-    stack.append(c5)
-    stack.append(c6)
 
     p[0] = (c1, c2, c3, c4, c5, c6)
 
@@ -343,13 +341,13 @@ def p_cmd_while(p):
     s_begin = create_label('WHILE')
     e_false = create_label('END')
 
-    code = generate_c3e(s_begin, ':')
-    code += generate_c3e(e_cod, ' ', C3E.GOTO, e_false)
-    code += generate_c3e(s1_cod)
-    code += generate_c3e(C3E.GOTO, s_begin)
-    code += generate_c3e(e_false, ':')
+    c1 = generate_c3e(s_begin, ':')
+    c2 = generate_c3e(e_cod, ' ', C3E.GOTO, e_false)
+    c3 = s1_cod
+    c4 = generate_c3e(C3E.GOTO, s_begin)
+    c5 = generate_c3e(e_false, ':')
 
-    p[0] = code
+    p[0] = (c1, c2, c3, c4, c5)
     # ('cmd_while', p[1])
 
 
