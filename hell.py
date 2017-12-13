@@ -1,45 +1,32 @@
 labels = []
 temps = []
 
-'''
-def last_temp():
-    if len(temporaria) > 0:
-        return temporaria[-1]
-
-
-def reset_temp():
-    del temporaria[:]
-'''
 
 def create_temp(reset=False):
-    count = 0
     if not reset:
         count = len(temps)
-
-    # if count < 2:
         temps.append("T" + str(count + 1))
 
     return temps[-1]
 
 
-def create_label(lbl):
+def create_label(label):
     count = len(labels) + 1
-    label = 'LABEL' + str(count)
+    lbl = 'LABEL' + str(count)
 
-    if lbl:
-        label = lbl + str(count)
+    if label:
+        lbl = label + str(count)
 
-    labels.append(label)
-    return label
+    labels.append(lbl)
+    return lbl
 
 
-def generate_c3e(*args):
+def generate_c3e(*args, separator=' '):
     line = ''
     for arg in args:
-        line += str(arg)
+        line += "{0}{1}".format(str(arg), separator)
 
     return line
-    # print(line)
 
 
 def invert_op(op):
@@ -58,6 +45,18 @@ def invert_op(op):
 
 
 class C3E:
-    GOTO = 'GOTO '
-    IF = 'IF '
+    ARRAY_MULTIPLIER = '4'
+    TIMES = '*'
+    ASSIGNMENT = ':='
+    GOTO = 'GOTO'
+    IF = 'IF'
     ELSE = 'ELSE'
+
+
+def print_c3e(code):
+    if type(code) != str:
+        for chunk in code:
+            if isinstance(chunk, (list, tuple)):
+                print_c3e(chunk)
+            else:
+                print(chunk)
