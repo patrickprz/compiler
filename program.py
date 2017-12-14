@@ -211,7 +211,7 @@ def p_expression(p):
     # TODO: otimizar
     temp = create_temp()
 
-    if type(p[1]) is tuple and str(p[1][0]).startswith("T") and type(p[3]) and str(p[3][0]).startswith("T"):
+    if type(p[1]) is tuple and str(p[1][0]).startswith("T") and type(p[3]) is tuple and str(p[3][0]).startswith("T"):
         expression = generate_c3e(temp, C3E.ASSIGNMENT, p[1][0], p[2], p[3][0])
     else:
         expression = generate_c3e(temp, C3E.ASSIGNMENT, p[1], p[2], p[3])
