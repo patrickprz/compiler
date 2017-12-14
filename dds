@@ -1,0 +1,96 @@
+S -> p_program_p { print(p_program_p.code) }
+p_program_p -> program { p_program_p.code = program.code }
+p_program_p -> program p_program_p { p_program_p.code = program.code + p_program_p.code}
+program -> expression
+{
+  temp = create_temp()
+
+  if type(expression.value) is tuple
+  	 and str(expression.value[0]).startswith("T")
+     and type(expression1.value) is tuple
+  	 and str(expression1.value[0]).startswith("T"):
+  	expression.code = generate(temp + ' = ' + expression.value[0] + RL_OP + expression1.value[0])
+  else:
+  	expression.code = generate(temp + ' = ' + expression.value)
+
+  program.code = program.code + expression.code
+}
+program -> cmd_rl { program.code = program.code + cmd_rl.code }
+program -> var_assign { program.code = program.code + var_assign.code }
+program -> VAR var_type var_declaration SEMICOLON { program.code = program.code + generate(var_type.code + var_declaration.code + ' ; ') }
+var_declaration_repeat -> var_declaration SEMICOLON var_type var_type_id { var_declaration_repeat.code = var_declaration.code + ' ; ' + var_type.code + var_type_id.code }
+var_declaration -> var_type_id { var_declaration.value = var_type_id.value}
+var_declaration -> var_declaration_repeat { var_declaration.value = var_declaration_repeat.value }
+var_rec -> var_type_id COMMA id_class { var_rec.code = generate(var_type_id.value + ' , ' id_class.value) }
+var_type_id -> id_class { var_type_id.code = id_class.value }
+var_type_id -> var_rec { var_type_id.code = var_rec.value }
+var_type -> REAL { var_type.Tipo = REAL, var_type.value = REAL.lexVal }
+var_type -> INTVAR { var_type.Tipo = INTVAR, var_type.value = INTVAR.lexVal }
+id_array -> ID LEFT_BRACKET INT RIGHT_BRACKET
+{
+    temp = create_temp()
+    id_array.code = generate(temp + ' = ' + INT.lexVal + ' * ' + ' 4 ') + generate(ID.val + ' [ ' + temp + ' ] ')
+}
+
+id_array -> ID LEFT_BRACKET ID RIGHT_BRACKET
+{
+    temp = create_temp()
+    id_array.code = generate(temp + ' = ' + ID.lexVal + ' * ' + ' 4 ') + generate(ID.val + ' [ ' + temp + ' ] ')
+}
+id_class -> ID { id_class.value = ID.lexVal }
+id_class -> id_array { id_class.value = id_array.value }
+var_assign -> id_class EQUALS expression SEMICOLON { var_assign.code =  id_class.code + ' = ' + expression.code + ' ; '}
+expression -> id_class { expression.value = id_class.value }
+expression -> expression MULTIPLY expression { expression.value = (expression1.value, ' * ', expression2.value)}
+expression -> expression DIVIDE expression { expression.value = (expression1.value, ' / ', expression2.value) }
+expression -> expression PLUS expression { expression.value = (expression1.value, ' + ', expression2.value) }
+expression -> expression MINUS expression { expression.value = (expression1.value ' - ', expression2.value) }
+expression -> expression POWER expression { expression.value = (expression1.value, ' ^ ', expression2.value) }
+expression -> INT { expression.Tipo = INT, expression.value = INT.lexVal }
+expression -> FLOAT { expression.Tipo = FLOAT, expression.value = FLOAT.lexVal }
+expression -> LEFT_PAR expression RIGHT_PAR { expression.value = expression1.value }
+expression_co -> var_assign { expression_co.value = var_assign.value}
+expression_co -> cmd_rl { expression_co.value = cmd_rl.value }
+expression_cr -> expression_co expression_c { expression_cr.value =  expression_co.value + expression_c.value}
+expression_c -> expression_co { expression_c.value = expression_co.value }
+expression_c -> expression_cr { expression_c.value = expression_cr.value }
+expression_bra -> LEFT_BRACES expression_c RIGHT_BRACES { expression_bra.value = expression_c.value }
+expression_rl -> expression RL_OP expression
+{
+  expression_rl.code = generate(expression.value + invert_op(RL_OP) + expression1.value)
+}
+cmd_if -> IF LEFT_PAR expression_rl RIGHT_PAR expression_bra
+{
+	END = create_label('END')
+  cmd_if.code = generate('IF' + expression_rl.code + GOTO + label_end) +  expression_bra.code + generate(label_end + ':')
+}
+cmd_ifelse -> IF LEFT_PAR expression_rl RIGHT_PAR expression_bra ELSE expression_bra
+{
+    label_end = create_label('END')
+    label_else = create_label('ELSE')
+
+    c1 = generate('IF' + expression_rl.code + 'GOTO', label_else)
+    c2 = expression_rl.code
+    c3 = generate('GOTO', label_end)
+    c4 = generate(label_else + ':')
+    c5 = expression_bra1.code
+    c6 = generate(label_end, + ':')
+
+    cmd_ifelse.code = (c1 + c2 + c3 + c4 + c5 + c6)
+}
+cmd_while -> WHILE LEFT_PAR expression_rl RIGHT_PAR expression_bra
+{
+  s_begin = create_label('WHILE')
+  e_false = create_label('END')
+
+  c1 = generate(s_begin, ':')
+  c2 = generate('IF', expression_rl.code, 'GOTO', e_false)
+  c3 = expression_bra.code
+  c4 = generate('GOTO', s_begin)
+  c5 = generate(e_false, ':')
+
+  cmd_while.code = (c1 + c2 + c3 + c4 + c5)
+}
+cmd_rl -> cmd_while { cmd_rl.code = cmd_while.code + cmd_while.code }
+cmd_rl -> cmd_if { cmd_rl.code = cmd_rl.code + cmd_if.code }
+cmd_rl -> cmd_ifelse { cmd_rl.code = cmd_ifelse.code + cmd_ifelse.code }
